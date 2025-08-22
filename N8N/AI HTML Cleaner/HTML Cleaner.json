@@ -1,0 +1,107 @@
+{
+  "name": "HTML Cleaner",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clean-html",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "b278ca2c-63be-4d45-850d-785f43a732d3",
+      "name": "Webhook (Receive HTML)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        80
+      ],
+      "webhookId": "579d11a0-22d0-4abc-a2c3-37067a0b1835"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "15001457-75c2-4ac6-89a8-3a4cb7f539db",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        592,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an HTML sanitizer and copy editor.\nYour job: clean input HTML, allow only specific tags, fix structure, and correct spelling/grammar—while preserving the author’s meaning.\n\nAllowed tags (whitelist only)\n\n<b> <div> <u> <i> <p> <br> <ul> <li> <ol> <a> <em> <strong>\n\nEverything else must be removed or unwrapped, including: <html> <head> <body> <style> <h1-6> <span> <section> <article> <header> <footer> <figure> <img> <table> <iframe> <script> <form> <svg> <math> <meta> <link> <o:p> and any vendor/Word namespaces (v:*, o:*, w:*).\n\nAllowed attributes\n\nOnly for <a>: keep href if it starts with http://, https://, mailto:, or tel:.\n\nOtherwise, unwrap the <a> (keep its text).\n\nNo other attributes on any tag. Remove class, id, style, data-*, target, rel, title, event handlers, XML/ns attributes, dir, etc.\n\nAbsolutely no style attributes and no <style> blocks.\n\nWord/Office HTML cleanup\n\nRemove MSO / Word-specific markup and attributes (mso-*, office:*, v:*, o:*, w:*, xmlns:*, conditional comments like <!--[if gte mso ...]-->).\n\nStrip <o:p> nodes, <span> wrappers (preserve text), and any inline font/size/face remnants.\n\nConvert headings <h1-6> to <p> (preserving text only).\n\nStructural rules\n\nWell-formed: properly nested and closed tags.\n\nParagraphs: wrap free text in <p>. No empty <p>.\n\nCollapse multiple <br> to at most one; prefer new <p> blocks for paragraph breaks.\n\nLists: <li> must be inside <ul> or <ol>; wrap stray <li> in <ul>. Remove empty <li>.\n\nDivs: remove empty <div>. If a <div> only wraps a single block, you may unwrap it to reduce noise.\n\nRedundant markup: flatten nested equivalents (<b><strong>…</strong></b> → <strong>…</strong>); merge adjacent identical inline tags.\n\nWhitespace: normalize spaces and blank lines; trim leading/trailing whitespace.\n\nSafety\n\nRemove scripts, embeds, iframes, forms, comments, and disallowed elements.\n\nStrip/escape dangerous URLs (javascript:, data:, etc.).\n\nCopy editing\n\nCorrect English spelling and grammar.\n\nNormalize punctuation (quotes, dashes, spacing).\n\nPreserve meaning and tone; do not rephrase beyond correctness.\n\nFix link text spelling only as needed.\n\nNormalization preferences\n\nPrefer <strong> over nested <b>/<strong>; prefer <em> over nested <i>/<em>.\n\nUse UTF-8 characters (fallback to named entities if required).\n\nOutput\n\nReturn sanitized HTML only (no <html>, <head>, or other wrappers).\n\nResult must be minimal, valid, and readable.",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.body.html }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        128,
+        80
+      ],
+      "id": "67622cc3-fdc8-40f1-b619-8e15f93ddc83",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vgWK53Puae2VvWT7",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook (Receive HTML)": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ff33167-57fc-4605-be0b-00831ba93551",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "884428778b5b745c624d30a5d2aae7acdc598009c361cbde515b08aded926072"
+  },
+  "id": "JNMdwG31sp4xn8kn",
+  "tags": []
+}
